@@ -1,7 +1,10 @@
 # Pygame Projects
 
 ## Pong
-![preview](resources/preview.jpg)
+### A recreation of the famous pong game
+<br>
+
+![preview](pong/resources/pong.PNG)
 
 
 
