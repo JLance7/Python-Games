@@ -8,13 +8,13 @@ from pygame import mixer
 from pygame.locals import *
 
 #CONSTANTS
-pygame.mixer.init(48000, -16, 2, 1024)
+#pygame.mixer.init(48000, -16, 2, 1024)
 pygame.init()
 pygame.font.init()
 pygame.display.set_caption("Pong")
 WIDTH, HEIGHT = 900, 500
 FPS = 60
-VEL = 7
+VEL = 10
 #set window
 WIN = pygame.display.set_mode((WIDTH, HEIGHT)) 
 #set background as black rectangle (x, y, width, height)
@@ -112,12 +112,12 @@ def main():
                 pygame.time.delay(1000)
             
             if event.type == VERTICAL_HIT:
-                ball_y_velocity = -(ball_y_velocity)
-                ball_y_velocity += 1
+                ball_y_velocity = -(ball_y_velocity + 1)
+                
             
             if event.type == HORIZONTAL_HIT:
-                ball_x_velocity = -(ball_x_velocity)
-                ball_x_velocity += 1
+                ball_x_velocity = -(ball_x_velocity + 2)
+                
 
         if p1_points >= 10:
             p1Win = True
@@ -182,12 +182,12 @@ def handleBallMovement(ball, ball_x_movement, ball_y_movement, player1, player2)
         hit_sound.play()
     
     #if ball hits top
-    if ball.y + ball_y_movement <= 0:
+    if ball.y + ball_y_movement <= 1:
         pygame.event.post(pygame.event.Event(VERTICAL_HIT))
         hit_sound.play()
 
     #if ball hits bottom
-    if ball.y + ball_y_movement >= HEIGHT:
+    if ball.y + ball_y_movement >= HEIGHT-1:
         pygame.event.post(pygame.event.Event(VERTICAL_HIT))
         hit_sound.play()
 
