@@ -12,15 +12,18 @@ from pygame.locals import *
 pygame.init()
 pygame.font.init()
 pygame.display.set_caption("Pong")
-WIDTH, HEIGHT = 900, 500
+info = pygame.display.Info()
+WIDTH = info.current_w
+HEIGHT = info.current_h
 FPS = 60
-VEL = 10
+VEL = 15
 #set window
-WIN = pygame.display.set_mode((WIDTH, HEIGHT)) 
+WIN = pygame.display.set_mode((WIDTH, HEIGHT), FULLSCREEN) 
 #set background as black rectangle (x, y, width, height)
 BACKGROUND = pygame.Rect(0, 0, WIDTH, HEIGHT)  
 #middle border
-BORDER = pygame.Rect(WIDTH//2 - 4, 0, 8, HEIGHT)
+BORDER_WIDTH = WIDTH//90
+BORDER = pygame.Rect(WIDTH//2 - (BORDER_WIDTH), 0, BORDER_WIDTH, HEIGHT)
 PLAYER_HEIGHT = 100
 PLAYER_WIDTH = 15
 BALL_SIDE = 10
@@ -43,6 +46,7 @@ HORIZONTAL_HIT = pygame.USEREVENT + 1
 VERTICAL_HIT = pygame.USEREVENT + 2
 P1_POINT = pygame.USEREVENT + 3
 P2_POINT = pygame.USEREVENT + 4
+PAUSE = pygame.USEREVENT + 5
 
 
 #get starting velocity for ball
@@ -50,19 +54,20 @@ def getBallStartVel():
     ballx = None
     bally = None
     num = random.randrange(1, 4)
+    x = 10
 
     if num == 1:
-        ballx = 6
-        bally = 6
+        ballx = x
+        bally = x
     elif num == 2:
-        ballx = -6
-        bally = 6
+        ballx = -x
+        bally = x
     elif num == 3:
-        ballx = 6
-        bally = -6
+        ballx = x
+        bally = -x
     elif num == 4:
-        ballx = -6
-        bally = -6
+        ballx = -x
+        bally = -x
     list = [ballx, bally]
     print('ball x velocity is: ' + str(ballx))
     print('ball y velocity is: ' + str(bally))
@@ -116,8 +121,10 @@ def main():
                 
             
             if event.type == HORIZONTAL_HIT:
-                ball_x_velocity = -(ball_x_velocity + 2)
-                
+                ball_x_velocity = -(ball_x_velocity)
+            
+            if event.type == PAUSE:
+                pauseScreen()
 
         if p1_points >= 10:
             p1Win = True
@@ -168,6 +175,8 @@ def handlePlayerMovement(keys_pressed, player1rect, player2rect):
         player2rect.y -= VEL
     if (keys_pressed[pygame.K_RIGHT] or keys_pressed[pygame.K_DOWN]) and player2rect.y + VEL + PLAYER_HEIGHT < HEIGHT:
         player2rect.y += VEL
+    if keys_pressed[pygame.K_ESCAPE]:
+        pygame.event.post(pygame.event.Event(PAUSE))
 
 
 #handle movement of ball
@@ -227,11 +236,32 @@ def startScreen():
                     run = False
                     main()
             
+def pauseScreen():
+    clock = pygame.time.Clock()
+    string = "Press 'q' to quit or 'space' to resume"
+    text = WINNER_FONT.render(string, 1, WHITE)
+    WIN.blit(text, ((WIDTH//2 - text.get_width()//2, HEIGHT//2 - text.get_height()//2 - 100)))
+    pygame.display.update()
+    run = True
+    while run:
+        clock.tick(FPS)
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_q:
+                    run = False
+                    pygame.quit()
+                if event.key == pygame.K_SPACE:
+                    run = False
+    print('finished paus screen')
+                   
+
 
 def winScreen(player):
     clock = pygame.time.Clock()
     winner = ""
-    playAgain = "Press SPACE to playagain or 'q' to quit"
+    playAgain = "Press SPACE to play again or 'q' to quit"
     if player == 'p1':
         winner = "Player 1 Wins!"
     else:
