@@ -6,14 +6,11 @@
 
 ![preview](pong/resources/pong.PNG)
 
+## Space battle
+![preview](2-player-ship-battle/Assets/thumbnail.png)
 
 
-\
-\
-To be continued...
-
-
-
-
+## Snake
+![preview](snek/resources/thumbnail.png)
 
 
