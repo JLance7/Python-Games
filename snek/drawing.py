@@ -1,12 +1,17 @@
 import pygame
 from constants import *
 from colors import *
+from typing import List
 
 
-def draw_screen(player_pos_x: int, player_pos_y: int):
+def draw_screen(snake: List[dict], food_pos_x: int, food_pos_y: int):
   pygame.draw.rect(WIN, BLACK, BACKGROUND)
   draw_lines()
-  draw_snake(player_pos_x, player_pos_y)
+  # food
+  draw_cube(food_pos_x, food_pos_y, RED)
+  # snake
+  for segment in snake:
+    draw_cube(segment['x'], segment['y'], GREEN)
   pygame.display.update()
 
 
@@ -25,6 +30,6 @@ def draw_lines():
     pygame.draw.rect(WIN, WHITE, line)
 
 
-def draw_snake(pos_x: int, pos_y: int):
+def draw_cube(pos_x: int, pos_y: int, color):
   player = pygame.Rect(pos_x, pos_y, PLAYER_WIDTH, PLAYER_WIDTH)
-  pygame.draw.rect(WIN, GREEN, player)
+  pygame.draw.rect(WIN, color, player)
