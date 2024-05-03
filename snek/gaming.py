@@ -66,40 +66,22 @@ def get_direction(keys_pressed, direction):
 
 
 def handle_movement(direction, snake):
+  snake_copy = snake
   # set segment cords to segment cords ahead of it in list, if first increment/decremnt cords based on direction
-  for i in range(len(snake)-1, -1, -1):
+  for i in range(len(snake_copy)-1, -1, -1):
     if i != 0:
-      snake[i]['x'] = snake[i-1]['x']
-      snake[i]['y'] = snake[i-1]['y']
+      snake_copy[i]['x'] = snake_copy[i-1]['x']
+      snake_copy[i]['y'] = snake_copy[i-1]['y']
     else:
       if direction == direction.UP:
-        snake[i]['y'] -= PLAYER_WIDTH
+        snake_copy[i]['y'] -= PLAYER_WIDTH
       elif direction == direction.DOWN:
-        snake[i]['y'] += PLAYER_WIDTH
+        snake_copy[i]['y'] += PLAYER_WIDTH
       elif direction == direction.RIGHT:
-        snake[i]['x'] += PLAYER_WIDTH
+        snake_copy[i]['x'] += PLAYER_WIDTH
       elif direction == direction.LEFT:
-        snake[i]['x'] -= PLAYER_WIDTH
-  # for i in range(len(snake)):
-  #   if i == 0:
-  #     if direction == direction.UP:
-  #       snake[i]['y'] -= PLAYER_WIDTH
-  #     elif direction == direction.DOWN:
-  #       snake[i]['y'] += PLAYER_WIDTH
-  #     elif direction == direction.RIGHT:
-  #       snake[i]['x'] += PLAYER_WIDTH
-  #     elif direction == direction.LEFT:
-  #       snake[i]['x'] -= PLAYER_WIDTH
-  #   elif i == 1:
-  #     snake[i]['x'] = original_head_x
-  #     if direction == direction.UP:
-  #       snake[i]['y'] = snake[i-1]['y'] + PLAYER_WIDTH
-  #     elif direction == direction.DOWN:
-  #       snake[i]['y'] = snake[i-1]['y'] - PLAYER_WIDTH
-  #     elif direction == direction.RIGHT:
-  #       snake[i]['x'] = snake[i-1]['x'] - PLAYER_WIDTH
-  #     elif direction == direction.LEFT:
-  #       snake[i]['x'] = snake[i-1]['x'] + PLAYER_WIDTH
+        snake_copy[i]['x'] -= PLAYER_WIDTH
+  snake = snake_copy
 
 
 def check_player_and_food(snake, food_pos_x, food_pos_y):
@@ -114,6 +96,11 @@ def check_player_and_food(snake, food_pos_x, food_pos_y):
 
   if snake[0]['x'] == food_pos_x and snake[0]['y'] == food_pos_y:
     pygame.event.post(pygame.event.Event(FOOD_ACQUIRED))
+  
+  for i in range(len(snake) - 1):
+    if snake[0]['x'] == snake[i]['x'] and snake[0]['y'] == snake[i]['y']:
+      pygame.event.post(pygame.event.Event(COLLISION))
+        
 
 
 if __name__ == "__main__":
