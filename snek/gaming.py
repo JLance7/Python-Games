@@ -6,13 +6,8 @@ from constants import *
 from colors import *
 from drawing import draw_screen
 from util.helper import get_random_player_pos
+from my_types import Direction, Snake
 
-
-class Direction(Enum):
-  UP = 0
-  DOWN = 1
-  RIGHT = 2
-  LEFT = 3
 
 direction = Direction.RIGHT
 food_pos_x, food_pos_y = 0, 0
@@ -25,82 +20,106 @@ def main():
   INFO = pygame.display.Info()
   pygame.display.set_caption("Snake")
   clock = pygame.time.Clock()
-  player_pos_x, player_pos_y = get_random_player_pos()
+  player_pos_x, player_pos_y = get_random_player_pos(5)
   while True:
     food_pos_x, food_pos_y = get_random_player_pos()
     if food_pos_x != player_pos_x: break
   time_elapsed_since_last_action = 0
   run = True
   snake = []
-  snake.append({
-    'x': player_pos_x, 
-    'y': player_pos_y
-  })
+  snake.append(Snake(player_pos_x, player_pos_y))
 
   while run:
     time = clock.tick(FPS)
-    time_elapsed_since_last_action += time
+    # time_elapsed_since_last_action += time
 
-    keys_pressed = pygame.key.get_pressed()     
-    direction = get_direction(keys_pressed, direction)
-    if time_elapsed_since_last_action > 150:  
-      handle_movement(direction, snake)
-      time_elapsed_since_last_action = 0
+    food_pos_x, food_pos_y, direction = check_events(food_pos_x, food_pos_y, snake, direction)
+    # logger.info(direction)
+    handle_movement(direction, snake)
+    check_collision(snake)
+    draw_screen(snake, food_pos_x, food_pos_y, len(snake))
 
-    draw_screen(snake, food_pos_x, food_pos_y)
-    check_player_and_food(snake, food_pos_x, food_pos_y)
-    food_pos_x, food_pos_y = check_events(food_pos_x, food_pos_y, snake, direction)
+    # keys_pressed = pygame.key.get_pressed()     
+    # if time_elapsed_since_last_action > 150:  
+      # handle_movement(direction, snake)
+      # time_elapsed_since_last_action = 0
 
 
-def get_direction(keys_pressed, direction):
-  if keys_pressed[pygame.K_UP] and direction != Direction.DOWN:
+def get_direction(key, direction):
+  # if keys_pressed[pygame.K_UP] and direction != Direction.DOWN:
+#     direction = Direction.UP
+#   elif keys_pressed[pygame.K_DOWN] and direction != Direction.UP:
+#     direction = Direction.DOWN
+#   elif keys_pressed[pygame.K_RIGHT] and direction != Direction.LEFT:
+#     direction = Direction.RIGHT
+#   elif keys_pressed[pygame.K_LEFT] and direction != Direction.RIGHT:
+#     direction = Direction.LEFT
+#   # print(direction)
+#   return direction
+
+  if key == pygame.K_UP and direction != Direction.DOWN:
     direction = Direction.UP
-  elif keys_pressed[pygame.K_DOWN] and direction != Direction.UP:
+  elif key == pygame.K_DOWN and direction != Direction.UP:
     direction = Direction.DOWN
-  elif keys_pressed[pygame.K_RIGHT] and direction != Direction.LEFT:
+  elif key == pygame.K_RIGHT and direction != Direction.LEFT:
     direction = Direction.RIGHT
-  elif keys_pressed[pygame.K_LEFT] and direction != Direction.RIGHT:
+  elif key == pygame.K_LEFT and direction != Direction.RIGHT:
     direction = Direction.LEFT
   # print(direction)
   return direction
 
 
 def handle_movement(direction, snake):
-  snake_copy = snake
-  # set segment cords to segment cords ahead of it in list, if first increment/decremnt cords based on direction
-  for i in range(len(snake_copy)-1, -1, -1):
-    if i != 0:
-      snake_copy[i]['x'] = snake_copy[i-1]['x']
-      snake_copy[i]['y'] = snake_copy[i-1]['y']
-    else:
-      if direction == direction.UP:
-        snake_copy[i]['y'] -= PLAYER_WIDTH
-      elif direction == direction.DOWN:
-        snake_copy[i]['y'] += PLAYER_WIDTH
-      elif direction == direction.RIGHT:
-        snake_copy[i]['x'] += PLAYER_WIDTH
-      elif direction == direction.LEFT:
-        snake_copy[i]['x'] -= PLAYER_WIDTH
-  snake = snake_copy
+  # for i in range(len(snake)-1, -1, -1):
+  #   if i != 0:
+  #     snake[i]['x'] = snake[i-1]['x']
+  #     snake[i]['y'] = snake[i-1]['y']
+  #   else:
+  #     if direction == direction.UP:
+  #       snake[i]['y'] -= PLAYER_WIDTH
+  #     elif direction == direction.DOWN:
+  #       snake[i]['y'] += PLAYER_WIDTH
+  #     elif direction == direction.RIGHT:
+  #       snake[i]['x'] += PLAYER_WIDTH
+  #     elif direction == direction.LEFT:
+  #       snake[i]['x'] -= PLAYER_WIDTH
+  new_snake_pos = Snake(snake[0].x, snake[0].y)
+  if direction == direction.UP:
+    new_snake_pos.y -= PLAYER_WIDTH
+  elif direction == direction.DOWN:
+    new_snake_pos.y += PLAYER_WIDTH
+  elif direction == direction.RIGHT:
+     new_snake_pos.x += PLAYER_WIDTH
+  elif direction == direction.LEFT:
+     new_snake_pos.x -= PLAYER_WIDTH
+  snake.insert(0, new_snake_pos)
+  if check_food(snake):
+    pass
+  else:
+    snake.pop()
 
 
-def check_player_and_food(snake, food_pos_x, food_pos_y):
-  if snake[0]['x'] < 0:
+def check_collision(snake):
+  if snake[0].x < 0:
     pygame.event.post(pygame.event.Event(COLLISION))
-  if snake[0]['x'] > WIDTH:
+  if snake[0].x > WIDTH:
     pygame.event.post(pygame.event.Event(COLLISION))
-  if snake[0]['y'] < 0:
+  if snake[0].y < 0:
     pygame.event.post(pygame.event.Event(COLLISION))
-  if snake[0]['y'] > HEIGHT:
+  if snake[0].y > HEIGHT:
     pygame.event.post(pygame.event.Event(COLLISION))
-
-  if snake[0]['x'] == food_pos_x and snake[0]['y'] == food_pos_y:
-    pygame.event.post(pygame.event.Event(FOOD_ACQUIRED))
   
-  for i in range(len(snake) - 1):
-    if snake[0]['x'] == snake[i]['x'] and snake[0]['y'] == snake[i]['y']:
+  for segment in snake[1:]:
+    if snake[0].x == segment.x and snake[0].y == segment.y:
       pygame.event.post(pygame.event.Event(COLLISION))
-        
+
+
+def check_food(snake):
+  """Returns true if snake collides with food and sends event to create new food location"""
+  if snake[0].x == food_pos_x and snake[0].y == food_pos_y:
+    pygame.event.post(pygame.event.Event(FOOD_ACQUIRED))
+    return True
+  return False
 
 
 if __name__ == "__main__":
