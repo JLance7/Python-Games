@@ -13,4 +13,5 @@
 ## Snake
 ![preview](snek/resources/thumbnail.png)
 
-
+## Tetris
+![preview](https://github.com/JLance7/tetris/blob/main/screenshot/gui-tetris.png)
