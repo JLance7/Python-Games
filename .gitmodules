@@ -1,3 +1,6 @@
 [submodule "tetris"]
 	path = tetris
 	url = https://github.com/JLance7/tetris
+[submodule "platformer"]
+	path = platformer
+	url = https://github.com/JLance7/platformer.git
